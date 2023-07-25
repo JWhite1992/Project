@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Seating Chart</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">White's Wedding</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1 class="mt-4">Seating Chart</h1>
+        {% if seat %}
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="seat-chart">
+                        <h4>Your Seat Information:</h4>
+                        <p>Table: {{ seat.top }}</p>
+                        <p>Seat: {{ seat.seat }}</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="seat-chart">
+                    <form action="{{ url_for('save_seat') }}" method="post"> <!-- Add form opening tag -->
+                        <div class="form-group">
+                            <label for="tableSelect">Table:</label>
+                            <select class="form-control" id="tableSelect" name="table_id"> 
+                                {% for i in range(1, 13) %}
+                                    <option value="{{ i }}" {% if i in taken_tables %}disabled{% endif %}>Table {{ i }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" name="id" value="{{ user_id }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="seatSelect">Seat:</label>
+                            <select class="form-control" id="seatSelect" name="seat_id"> 
+                                {% for i in range(1, 11) %}
+                                    <option value="{{ i }}" {% if i in taken_seats %}disabled{% endif %}>Seat {{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="plusOneCheckbox" name="plus_one">
+                            <label class="form-check-label" for="plusOneCheckbox">Plus One</label>
+                        </div>
+                        <div id="plusOneSeat" style="display: none;">
+                            <div class="form-group">
+                                <label for="plusOneSeatSelect">Plus One Seat:</label>
+                                <select class="form-control" id="plusOneSeatSelect" name="plus_one_seat_id">
+                                    <option value="" selected disabled>Select a seat</option>
+                                    {% for i in range(1, 11) %}
+                                        <option value="{{ i }}" {% if i in taken_seats %}disabled{% endif %}>Seat {{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" name="select_seat">Select Seat</button>
+                    </form> <!-- Add form closing tag -->
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#plusOneCheckbox').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#plusOneSeat').show();
+                } else {
+                    $('#plusOneSeat').hide();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

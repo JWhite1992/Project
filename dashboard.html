@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <link rel="stylesheet" href="static/style.css">
+    <title>Dashboard - White's Wedding</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0369a1;">
+        <a class="navbar-brand mx-auto" href="#">The White Wedding</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <a class="nav-link" href="https://reedsatshelterhaven.com/"> The Reeds At Shelter Haven: Address: 9601 3rd Ave, Stone Harbor, NJ 08247</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/tables/and/seats">Seating Chart</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-6">
+                <h1 class="text-center mb-4" style="color: #fff;">Welcome to the Beach</h1>
+                <div class="card">
+                    <div class="card-body">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <ul class="flash-messages">
+                                    {% for message in messages %}
+                                        <li class="flash-message">{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endwith %}
+                        {% if table and seat %}
+                            <h4>Your Selected Tables and Seats:</h4>
+                            <ul>
+                                <li>Table: {{ table }}</li>
+                                <li>Seat: {{ seat }}</li>
+                                <li>Guests Seat: {{ guest_seat }}</li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            <a href="{{ url_for('new_message') }}" class="seashell-button">Add Message</a>
+        </div>
+        <div class="row justify-content-center">
+            {% for message in messages %}
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <a href="{{ url_for('view_message', message_id=message.id) }}" class="btn btn-success mr-2">View</a>
+                        <div class="card-body">
+                            <div>
+                                <h6>{{ message.name }}</h6>
+                                <p>{{ message.message }}</p>
+                            </div>
+                            <p class="card-text">Likes: {{ message.like_count }}</p>
+                            <a href="{{ url_for('edit_message', message_id=message.id) }}" class="btn btn-warning mr-2">Edit</a>
+                            <form action="{{ url_for('delete_message', message_id=message.id) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                            <form action="{{ url_for('like_message', message_id=message.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-primary">Like</button>
+                            </form>
+                            <form action="{{ url_for('unlike_message', message_id=message.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-secondary">Unlike</button>
+                            </form>                            
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div id="map" style="height: 400px;"></div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var hotelData = [
+            {
+                "name": "Hotel 1",
+                "latitude": 39.05,
+                "longitude": -74.76,
+                "price": 120,
+                "ratings": 4.5,
+                "link": "https://example.com/hotel1"
+            },
+            {
+                "name": "Hotel 2",
+                "latitude": 39.06,
+                "longitude": -74.77,
+                "price": 150,
+                "ratings": 4.8,
+                "link": "https://example.com/hotel2"
+            }
+        ];
+        var map = L.map('map').setView([39.05, -74.76], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        hotelData.forEach(function (hotel) {
+            var marker = L.marker([hotel.latitude, hotel.longitude]).addTo(map);
+            marker.bindPopup(`<b>${hotel.name}</b><br>Price: $${hotel.price}<br>Ratings: ${hotel.ratings}<br><a href="${hotel.link}">View Hotel</a>`);
+        });
+    </script>
+</body>
+</html>
